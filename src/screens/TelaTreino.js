@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { FlatList } from 'react-native';
 import NavegacaoInferior from '../components/NavegacaoInferior';
 
 export default function TelaTreino({ route }) {
@@ -30,7 +30,7 @@ export default function TelaTreino({ route }) {
       <View style={estilos.conteudo}>
         <Text style={estilos.titulo}>Semana {week}</Text>
 
-        <FlashList
+        <FlatList
           data={dias}
           renderItem={({ item }) => (
             <TouchableOpacity
