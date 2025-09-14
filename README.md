@@ -59,12 +59,6 @@ A cor principal do app é `#550808ff`, transmitindo intensidade e foco. A navega
 
 ---
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
 ## 🚀 Como rodar o projeto
 
 ### 1. Clone o repositório
