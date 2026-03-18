@@ -39,7 +39,7 @@ export default function TelaPerfilEdicao({ navigation }) {
             <Text style={estilos.label}>Nome</Text>
             <TextInput 
               style={estilos.input}
-              defaultValue="Nome do Usuário"
+              defaultValue="Nome"
             />
 
             <Text style={estilos.label}>Data de nascimento</Text>
