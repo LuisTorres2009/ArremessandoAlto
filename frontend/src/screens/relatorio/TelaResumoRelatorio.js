@@ -101,7 +101,7 @@ const estilos = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'center', 
     paddingVertical: 20,
-    paddingBottom: 100,
+    paddingBottom: 50,
   },
   card: {
     backgroundColor: '#FFF',
