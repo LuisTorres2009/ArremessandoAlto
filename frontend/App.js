@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Importações das telas
 
-import TelaAnimacao from './src/screens/inicial/TelaAnimacao';
+import TelaAnimacao from './src/screens/animacao/TelaAnimacao';
 import TelaLogin from './src/screens/login/TelaLogin';
 import TelaCadastro from './src/screens/cadastro/TelaCadastro';
 import TelaFormulario from './src/screens/formulario/TelaFormulario';
