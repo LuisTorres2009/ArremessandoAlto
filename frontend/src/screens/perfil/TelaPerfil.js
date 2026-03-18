@@ -82,7 +82,6 @@ const estilos = StyleSheet.create({
   },
   scrollContent: {
     alignItems: 'center',
-    paddingBottom: 100,
   },
   card: {
     backgroundColor: '#FFF',
