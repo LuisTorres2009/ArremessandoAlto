@@ -79,4 +79,4 @@ npx expo start --tunnel
 ```
 ---
 
-Copyright @Luis Ricardo
+Copyright @Luis Ricardo, Luca Bizinotto & Enzo Amstalden
