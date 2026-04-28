@@ -19,7 +19,7 @@ export default function NavegacaoInferior() {
       {/* Botão Relatório */}
       <TouchableOpacity 
         style={styles.itemNavegacao} 
-        onPress={() => navigation.navigate('TelaRelatorioConectar')}
+        onPress={() => navigation.navigate('TelaPrincipalRelatorio')}
       >
         <Image source={require('../assets/relatorio.png')} style={styles.icone} />
         <Text style={styles.textoItem}>Relatório</Text>

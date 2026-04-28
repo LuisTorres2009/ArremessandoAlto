@@ -1,8 +1,50 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
 import GradientWrapper from '../../components/GradientWrapper';
+import api from '../../config/api';
+import { salvarToken, salvarJogador } from '../../config/storage';
 
 export default function TelaCadastro({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [carregando, setCarregando] = useState(false);
+
+  async function fazerCadastro() {
+    if (!email || !senha || !confirmarSenha) {
+      Alert.alert('Atenção', 'Preencha todos os campos.');
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      Alert.alert('Atenção', 'As senhas não coincidem.');
+      return;
+    }
+
+    if (senha.length < 6) {
+      Alert.alert('Atenção', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await api.post('/auth/cadastro', { email, senha });
+
+      const resLogin = await api.post('/auth/login', { email, senha });
+
+      await salvarToken(resLogin.data.token);
+      await salvarJogador(resLogin.data.jogador);
+
+      navigation.navigate('TelaFormulario');
+
+    } catch (erro) {
+      const msg = erro.response?.data?.mensagem || erro.message || 'Erro ao conectar com o servidor.';
+      Alert.alert('Erro', msg);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
   return (
     <GradientWrapper style={estilos.container}>
       
@@ -18,6 +60,10 @@ export default function TelaCadastro({ navigation }) {
           style={estilos.input} 
           placeholder="Escreva seu email"
           placeholderTextColor="#666"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
 
         <Text style={estilos.label}>Senha:</Text>
@@ -26,6 +72,8 @@ export default function TelaCadastro({ navigation }) {
           secureTextEntry 
           placeholder="Escreva sua senha"
           placeholderTextColor="#666"
+          value={senha}
+          onChangeText={setSenha}
         />
 
         <Text style={estilos.label}>Confirmar senha:</Text>
@@ -34,10 +82,19 @@ export default function TelaCadastro({ navigation }) {
           secureTextEntry 
           placeholder="Confirme sua senha"
           placeholderTextColor="#666"
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
         />
 
-        <TouchableOpacity style={estilos.botao}>
-          <Text style={estilos.textoBotao}>Cadastrar</Text>
+        <TouchableOpacity 
+          style={[estilos.botao, carregando && { opacity: 0.7 }]}
+          onPress={fazerCadastro}
+          disabled={carregando}
+        >
+          {carregando 
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={estilos.textoBotao}>Cadastrar</Text>
+          }
         </TouchableOpacity>
 
         <Text style={estilos.link}>
@@ -49,7 +106,6 @@ export default function TelaCadastro({ navigation }) {
             Entre
           </Text>
         </Text>
-
       </View>
     </GradientWrapper>
   );
@@ -62,25 +118,21 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 120
   },
-
   logoContainer: { 
     alignItems: 'center', 
     marginBottom: 35 
   },
-
   logo: { 
     width: 100, 
     height: 100, 
     resizeMode: 'contain' 
   },
-
   tituloApp: { 
     color: '#fff', 
     fontSize: 20, 
     fontWeight: 'bold', 
     marginTop: 10
   },
-
   card: { 
     backgroundColor: '#E0E0E0', 
     borderRadius: 20, 
@@ -88,14 +140,12 @@ const estilos = StyleSheet.create({
     width: '85%', 
     alignItems: 'center' 
   },
-
   label: { 
     alignSelf: 'flex-start', 
     fontWeight: 'bold', 
     marginBottom: 5,
     color: '#000'
   },
-
   input: { 
     backgroundColor: '#CCCCCC', 
     width: '100%', 
@@ -104,7 +154,6 @@ const estilos = StyleSheet.create({
     marginBottom: 15,
     color: '#000'
   },
-
   botao: { 
     backgroundColor: '#700000', 
     borderRadius: 10, 
@@ -112,20 +161,17 @@ const estilos = StyleSheet.create({
     paddingHorizontal: 35,
     marginTop: 10 
   },
-
   textoBotao: { 
     color: '#fff', 
     fontWeight: 'bold', 
     fontSize: 16 
   },
-
   link: { 
     marginTop: 15, 
     fontSize: 12, 
     textAlign: 'center',
     color: '#000'
   },
-
   linkVermelho: {
     color: '#8B0000',
     fontWeight: 'bold',

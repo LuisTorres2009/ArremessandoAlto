@@ -1,41 +1,78 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import GradientWrapper from '../../components/GradientWrapper';
 import estilosGlobais from '../../styles/styles';
 import NavegacaoInferior from '../../components/NavegacaoInferior';
 
-export default function TelaDetalhesCard({ navigation }) {
+export default function TelaDetalhesCard({ route, navigation }) {
+  // Recebe o registro completo vindo da TelaPrincipal
+  const { registro } = route.params;
+
+  function formatarData(dataStr) {
+    if (!dataStr) return '—';
+    const d = new Date(dataStr);
+    if (isNaN(d)) return '—';
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function corAproveitamento(valor) {
+    if (valor >= 60) return '#4CAF50';
+    if (valor >= 40) return '#FF9800';
+    return '#E53935';
+  }
+
+  const tituloTreino = registro.numero_aula
+    ? `Semana ${registro.semana} — Aula ${registro.numero_aula}`
+    : 'Treino livre';
+
   return (
     <GradientWrapper style={estilos.tela}>
-      
-      {/* Cabeçalho Padronizado */}
+
       <View style={estilosGlobais.cabecalho}>
         <Text style={estilosGlobais.titulo}>Relatórios</Text>
-        <Image 
-          source={require('../../assets/basquete.png')} 
-          style={estilosGlobais.icone} 
-        />
+        <Image source={require('../../assets/basquete.png')} style={estilosGlobais.icone} />
       </View>
 
       <ScrollView contentContainerStyle={estilos.scrollContent}>
         <View style={estilos.card}>
-          
-          {/* Título e Data do Treino */}
-          <Text style={estilos.treinoTitulo}>Primeiro Treino</Text>
-          <Text style={estilos.dataTexto}>23/01/2026</Text>
 
-          {/* Estatísticas de Leitura */}
+          {/* Voltar */}
+          <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.btnVoltar}>
+            <Text style={estilos.txtVoltar}>← Voltar</Text>
+          </TouchableOpacity>
+
+          {/* Título e data */}
+          <Text style={estilos.treinoTitulo}>{tituloTreino}</Text>
+          <Text style={estilos.dataTexto}>{formatarData(registro.data_reg || null)}</Text>
+
+          {/* Badge de aproveitamento grande */}
+          <View style={[estilos.badgeGrande, { backgroundColor: corAproveitamento(registro.aproveitamento) }]}>
+            <Text style={estilos.badgeTexto}>{registro.aproveitamento}%</Text>
+            <Text style={estilos.badgeSubtexto}>aproveitamento</Text>
+          </View>
+
+          <View style={estilos.divisor} />
+
+          {/* Estatísticas */}
           <View style={estilos.statsContainer}>
-            <Text style={estilos.label}>Quantidade de arremessos: <Text style={estilos.valor}>4</Text></Text>
-            <Text style={estilos.label}>Acertos: <Text style={estilos.valor}>2</Text></Text>
-            <Text style={estilos.label}>Erros: <Text style={estilos.valor}>2</Text></Text>
-            <Text style={estilos.label}>Tempo: <Text style={estilos.valor}>0:30</Text></Text>
-            <Text style={estilos.label}>Aproveitamento: <Text style={estilos.valor}>50%</Text></Text>
-            
-            <View style={estilos.descricaoBox}>
-              <Text style={estilos.label}>Descrição:</Text>
-              <Text style={estilos.valorNormal}>Treino de arremessos de meia distância focado em mecânica e saída rápida.</Text>
+            <View style={estilos.linhaEstat}>
+              <Text style={estilos.label}>Arremessos:</Text>
+              <Text style={estilos.valor}>{registro.tentativas}</Text>
             </View>
+            <View style={estilos.linhaEstat}>
+              <Text style={estilos.label}>Acertos:</Text>
+              <Text style={estilos.valor}>{registro.acertos}</Text>
+            </View>
+            <View style={estilos.linhaEstat}>
+              <Text style={estilos.label}>Erros:</Text>
+              <Text style={estilos.valor}>{registro.tentativas - registro.acertos}</Text>
+            </View>
+            {registro.tempo && (
+              <View style={estilos.linhaEstat}>
+                <Text style={estilos.label}>Tempo:</Text>
+                <Text style={estilos.valor}>{registro.tempo}</Text>
+              </View>
+            )}
           </View>
 
         </View>
@@ -47,72 +84,26 @@ export default function TelaDetalhesCard({ navigation }) {
 }
 
 const estilos = StyleSheet.create({
-  tela: { 
-    flex: 1,
-    paddingTop: 50 
+  tela: { flex: 1, paddingTop: 50 },
+  scrollContent: { alignItems: 'center', paddingTop: 10, paddingBottom: 100 },
+  card: {
+    backgroundColor: '#FFF', width: '90%', borderRadius: 20,
+    padding: 25, elevation: 5,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, shadowRadius: 4,
   },
-
-  scrollContent: { 
-    alignItems: 'center', 
-    paddingTop: 10,
-    paddingBottom: 100 
+  btnVoltar: { marginBottom: 16 },
+  txtVoltar: { color: '#700000', fontSize: 15, fontWeight: 'bold' },
+  treinoTitulo: { fontSize: 22, fontWeight: 'bold', color: '#000', marginBottom: 4 },
+  dataTexto: { fontSize: 15, color: '#666', marginBottom: 20 },
+  badgeGrande: {
+    borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginBottom: 20,
   },
-
-  card: { 
-    backgroundColor: '#FFF', 
-    width: '90%', 
-    borderRadius: 20, 
-    padding: 25, 
-    minHeight: 450,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-
-  treinoTitulo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 5
-  },
-
-  dataTexto: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 30
-  },
-
-  statsContainer: {
-    width: '100%',
-  },
-
-  label: { 
-    fontSize: 17, 
-    fontWeight: 'bold', 
-    color: '#000',
-    lineHeight: 30,
-  },
-
-  valor: {
-    fontWeight: 'bold',
-    color: '#700000',
-  },
-
-  descricaoBox: {
-    marginTop: 20,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#EEE'
-  },
-
-  valorNormal: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#333',
-    marginTop: 5,
-    lineHeight: 22
-  }
+  badgeTexto: { color: '#fff', fontSize: 36, fontWeight: 'bold' },
+  badgeSubtexto: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 2 },
+  divisor: { height: 1, backgroundColor: '#EEE', marginBottom: 16 },
+  statsContainer: { width: '100%' },
+  linhaEstat: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  label: { fontSize: 17, fontWeight: 'bold', color: '#000' },
+  valor: { fontSize: 17, fontWeight: 'bold', color: '#700000' },
 });

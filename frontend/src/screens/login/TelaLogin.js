@@ -1,8 +1,41 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
 import GradientWrapper from '../../components/GradientWrapper';
+import api from '../../config/api';
+import { salvarToken, salvarJogador } from '../../config/storage';
 
 export default function TelaLogin({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [carregando, setCarregando] = useState(false);
+
+  async function fazerLogin() {
+    if (!email || !senha) {
+      Alert.alert('Atenção', 'Preencha o email e a senha.');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      const resposta = await api.post('/auth/login', { email, senha });
+
+      await salvarToken(resposta.data.token);
+      await salvarJogador(resposta.data.jogador);
+
+      if (resposta.data.jogador.nome === 'Novo Jogador') {
+        navigation.navigate('TelaFormulario');
+      } else {
+        navigation.navigate('TelaHome');
+      }
+
+    } catch (erro) {
+      const msg = erro.response?.data?.mensagem || 'Erro ao conectar com o servidor.';
+      Alert.alert('Erro', msg);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
   return (
     <GradientWrapper style={estilos.container}>
       
@@ -13,16 +46,33 @@ export default function TelaLogin({ navigation }) {
 
       <View style={estilos.card}>
         <Text style={estilos.label}>Email:</Text>
-        <TextInput style={estilos.input} placeholder="Digite seu email" />
+        <TextInput 
+          style={estilos.input} 
+          placeholder="Digite seu email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
         <Text style={estilos.label}>Senha:</Text>
-        <TextInput style={estilos.input} secureTextEntry placeholder="Digite sua senha" />
+        <TextInput 
+          style={estilos.input} 
+          secureTextEntry 
+          placeholder="Digite sua senha"
+          value={senha}
+          onChangeText={setSenha}
+        />
 
         <TouchableOpacity 
-          style={estilos.botao} 
-          onPress={() => navigation.navigate('TelaFormulario')}
+          style={[estilos.botao, carregando && { opacity: 0.7 }]} 
+          onPress={fazerLogin}
+          disabled={carregando}
         >
-          <Text style={estilos.textoBotao}>Logar</Text>
+          {carregando 
+            ? <ActivityIndicator color="#fff" /> 
+            : <Text style={estilos.textoBotao}>Logar</Text>
+          }
         </TouchableOpacity>
 
         <Text style={estilos.link}>
@@ -34,7 +84,6 @@ export default function TelaLogin({ navigation }) {
             Cadastre-se
           </Text>
         </Text>
-
       </View>
     </GradientWrapper>
   );
@@ -47,25 +96,21 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 120
   },
-
   logoContainer: { 
     alignItems: 'center', 
     marginBottom: 35 
   },
-
   logo: { 
     width: 100, 
     height: 100, 
     resizeMode: 'contain' 
   },
-
   tituloApp: { 
     color: '#fff', 
     fontSize: 20, 
     fontWeight: 'bold', 
     marginTop: 10
   },
-
   card: { 
     backgroundColor: '#E0E0E0', 
     borderRadius: 20, 
@@ -73,13 +118,11 @@ const estilos = StyleSheet.create({
     width: '85%', 
     alignItems: 'center' 
   },
-
   label: { 
     alignSelf: 'flex-start', 
     fontWeight: 'bold', 
     marginBottom: 5 
   },
-
   input: { 
     backgroundColor: '#CCCCCC', 
     width: '100%', 
@@ -87,7 +130,6 @@ const estilos = StyleSheet.create({
     padding: 10, 
     marginBottom: 15 
   },
-
   botao: { 
     backgroundColor: '#700000', 
     borderRadius: 10, 
@@ -95,19 +137,16 @@ const estilos = StyleSheet.create({
     paddingHorizontal: 50, 
     marginTop: 10 
   },
-
   textoBotao: { 
     color: '#fff', 
     fontWeight: 'bold', 
     fontSize: 16 
   },
-
   link: { 
     marginTop: 15, 
     fontSize: 12, 
     textAlign: 'center' 
   },
-
   linkVermelho: {
     color: '#8B0000',
     fontWeight: 'bold',
