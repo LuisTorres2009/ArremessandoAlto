@@ -6,7 +6,6 @@ const authRoutes = require("./routes/authRoutes");
 const jogadorRoutes = require("./routes/jogadorRoutes");
 const aulasRoutes = require("./routes/aulasRoutes");
 const aproveitamentoRoutes = require("./routes/aproveitamentoRoutes");
-const objetivosRoutes = require("./routes/objetivosRoutes");
  
 const app = express();
  
@@ -21,8 +20,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);              
 app.use("/jogador", jogadorRoutes);        
 app.use("/aulas", aulasRoutes);            
-app.use("/aproveitamento", aproveitamentoRoutes); 
-app.use("/objetivos", objetivosRoutes);     
+app.use("/aproveitamento", aproveitamentoRoutes);   
  
 const PORT = process.env.PORT || 3000;
  

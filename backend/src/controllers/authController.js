@@ -27,11 +27,10 @@ async function cadastrar(req, res) {
     );
 
     try {
-      await db.query("CALL AdicionarJogador(?, ?, ?, ?, ?, ?, ?)", [
+      await db.query("CALL AdicionarJogador(?, ?, ?, ?, ?, ?)", [
         email,
         senhaCriptografada,
         "Novo Jogador",
-        null,
         null,
         null,
         progresso.insertId,

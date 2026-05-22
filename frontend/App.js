@@ -19,10 +19,6 @@ import TelaPerfil from './src/screens/perfil/TelaPerfil';
 import TelaPerfilEdicao from './src/screens/perfil/TelaPerfilEdicao';
 
 // ─── Relatório ────────────────────────────────────────────────────────────────
-// ⚠️ Telas deletadas (não importar mais):
-//    TelaContadorArremessos, TelaContadorAirballs,
-//    TelaResumoRelatorio, TelaPrincipalComCard
-//    → Todas foram unificadas no TelaFormularioRelatorio
 import TelaPrincipal from './src/screens/relatorio/TelaPrincipal';
 import TelaConectar from './src/screens/relatorio/TelaConectar';
 import TelaFormularioRelatorio from './src/screens/relatorio/TelaFormularioRelatorio';
