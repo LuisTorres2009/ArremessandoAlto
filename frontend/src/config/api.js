@@ -2,7 +2,7 @@ import axios from 'axios';
 import { pegarToken } from './storage';
 
 const api = axios.create({
-  baseURL: 'http://192.168.0.2:3000',
+  baseURL: 'https://arremessando-alto-tcc.up.railway.app',
 });
 
 api.interceptors.request.use(async (config) => {

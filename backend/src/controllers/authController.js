@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { emailFormatoValido, dominioRecebeEmail } = require("../utils/validacoes");
 require("dotenv").config();
 
 async function cadastrar(req, res) {
@@ -8,6 +9,16 @@ async function cadastrar(req, res) {
 
   if (!email || !senha) {
     return res.status(400).json({ mensagem: "Email e senha são obrigatórios." });
+  }
+
+  if (!emailFormatoValido(email)) {
+    return res.status(400).json({ mensagem: "Digite um email válido." });
+  }
+
+  if (!(await dominioRecebeEmail(email))) {
+    return res.status(400).json({
+      mensagem: "O domínio desse email não existe ou não recebe mensagens. Verifique se digitou corretamente.",
+    });
   }
 
   try {
@@ -22,27 +33,18 @@ async function cadastrar(req, res) {
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-    const [progresso] = await db.query(
-      "INSERT INTO ProgressoAula (semana_ult_aula, dia_ult_aula, ult_aula_realizada) VALUES (1, 1, 0)"
-    );
-
-    try {
-      await db.query("CALL AdicionarJogador(?, ?, ?, ?, ?, ?)", [
-        email,
-        senhaCriptografada,
-        "Novo Jogador",
-        null,
-        null,
-        progresso.insertId,
-      ]);
-    } catch (erroCadastro) {
-      await db.query("DELETE FROM ProgressoAula WHERE id_prog_aula = ?", [progresso.insertId]);
-      throw erroCadastro;
-    }
+    await db.query("CALL AdicionarJogador(?, ?, ?, ?, ?)", [
+      email,
+      senhaCriptografada,
+      "Novo Jogador",
+      null,
+      null,
+    ]);
 
     return res.status(201).json({ mensagem: "Jogador cadastrado com sucesso!" });
 
   } catch (error) {
+    console.error("Erro ao cadastrar jogador:", error);
     return res.status(500).json({ mensagem: "Erro interno no servidor." });
   }
 }
@@ -87,6 +89,7 @@ async function login(req, res) {
       },
     });
   } catch (error) {
+    console.error("Erro no login:", error);
     return res.status(500).json({ mensagem: "Erro interno no servidor." });
   }
 }

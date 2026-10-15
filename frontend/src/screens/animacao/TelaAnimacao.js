@@ -2,11 +2,34 @@ import React, { useEffect } from 'react';
 import { Text, Image, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import GradientWrapper from '../../components/GradientWrapper';
+import api from '../../config/api';
+import { pegarToken, limparSessao } from '../../config/storage';
+
+// Descobre para onde ir ao abrir o app (ou dar F5):
+// sem token ou token recusado pelo servidor -> login; senão, direto para dentro do app.
+async function descobrirTelaInicial() {
+  const token = await pegarToken();
+  if (!token) return 'TelaLogin';
+
+  try {
+    // Valida o token no servidor e já traz o nome atualizado
+    const { data } = await api.get('/jogador/perfil');
+    return data.nome === 'Novo Jogador' ? 'TelaFormulario' : 'TelaSemanas';
+  } catch (erro) {
+    if (erro.response?.status === 401 || erro.response?.status === 404) {
+      // Token expirado/inválido ou jogador não existe mais: limpa e pede login
+      await limparSessao();
+      return 'TelaLogin';
+    }
+    // Sem conexão / servidor fora: mantém a sessão e entra no app
+    return 'TelaSemanas';
+  }
+}
 
 // Tela de animação de entrada do app
 export default function TelaAnimacao({ navigation }) {
   
-  const opacidade = useSharedValue(1);
+  const opacidade = useSharedValue(0);
   const escala = useSharedValue(0.5);
 
   useEffect(() => {
@@ -22,12 +45,15 @@ export default function TelaAnimacao({ navigation }) {
       easing: Easing.out(Easing.exp),
     });
 
-    // Navega automaticamente após 2 segundos
-    const temporizador = setTimeout(() => {
-      navigation.navigate('TelaLogin');
-    }, 2000);
+    // Espera a animação (2s) e a verificação da sessão terminarem, então navega
+    let cancelado = false;
+    const espera = new Promise((resolve) => setTimeout(resolve, 2000));
 
-    return () => clearTimeout(temporizador);
+    Promise.all([descobrirTelaInicial(), espera]).then(([tela]) => {
+      if (!cancelado) navigation.reset({ index: 0, routes: [{ name: tela }] });
+    });
+
+    return () => { cancelado = true; };
   }, [navigation]);
 
   const estiloAnimado = useAnimatedStyle(() => ({

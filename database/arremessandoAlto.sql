@@ -7,48 +7,50 @@ CREATE TABLE ExperienciaBasquete (
     exp_basq ENUM('iniciante', 'intermediario', 'experiente', 'profissional') NOT NULL
 );
 
--- Progresso do jogador nas aulas (qual foi a última aula feita)
-CREATE TABLE ProgressoAula (
-    id_prog_aula INT PRIMARY KEY AUTO_INCREMENT,
-    semana_ult_aula INT DEFAULT 1,
-    dia_ult_aula INT DEFAULT 1,
-    ult_aula_realizada INT DEFAULT 0
-);
-
 -- Dados do jogador
 CREATE TABLE Jogador (
     id_jogador INT PRIMARY KEY AUTO_INCREMENT,
+    foto_url VARCHAR(500) NULL,
     email VARCHAR(50) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
     nome VARCHAR(100) NOT NULL,
     data_nascimento DATE,
     id_exp_basq INT,
-    id_prog_aula INT,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_exp_basq) REFERENCES ExperienciaBasquete(id_exp_basq),
-    FOREIGN KEY (id_prog_aula) REFERENCES ProgressoAula(id_prog_aula)
+    FOREIGN KEY (id_exp_basq) REFERENCES ExperienciaBasquete(id_exp_basq)
 );
 
--- Aulas do curso com suporte a vídeo do YouTube
 CREATE TABLE Aulas (
     id_aula INT PRIMARY KEY AUTO_INCREMENT,
+    gif_url VARCHAR(500) NULL,
     semana INT NOT NULL,
     dia INT NOT NULL,
     numero_aula INT NOT NULL,
     titulo VARCHAR(100),
-    explicacao VARCHAR(1000),
-    pratica BOOLEAN DEFAULT FALSE,
-    youtube_id VARCHAR(20) DEFAULT NULL
+    explicacao VARCHAR(1000)
+);
+
+-- Aulas concluídas por cada jogador (uma linha = jogador concluiu a aula).
+-- Marcar = inserir a linha; desmarcar = apagar a linha. Cada aula é independente.
+CREATE TABLE AulaConcluida (
+    id_jogador INT NOT NULL,
+    id_aula INT NOT NULL,
+    data_conclusao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_jogador, id_aula),
+    FOREIGN KEY (id_jogador) REFERENCES Jogador(id_jogador) ON DELETE CASCADE,
+    FOREIGN KEY (id_aula) REFERENCES Aulas(id_aula) ON DELETE CASCADE
 );
 
 -- Registros de aproveitamento dos treinos
 CREATE TABLE RegistroAproveitamento (
     id_reg_aprov INT PRIMARY KEY AUTO_INCREMENT,
+    titulo VARCHAR(150) DEFAULT 'Treino Livre',
     tentativas INT DEFAULT 0,
     acertos INT DEFAULT 0,
     aproveitamento DECIMAL(5,2) DEFAULT 0,
-    tempo TIME,
+    tempo VARCHAR(10) DEFAULT NULL,
+    posicao ENUM('lateral_esquerda', 'meio', 'lateral_direita', 'lateral_esquerda_atras', 'atras', 'lateral_direita_atras') NULL,
     id_jogador INT NOT NULL,
     id_aula INT,
     data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -74,12 +76,11 @@ CREATE PROCEDURE AdicionarJogador(
     IN p_senha VARCHAR(255),
     IN p_nome VARCHAR(100),
     IN p_data_nascimento DATE,
-    IN p_id_exp_basq INT,
-    IN p_id_prog_aula INT
+    IN p_id_exp_basq INT
 )
 BEGIN
-    INSERT INTO Jogador (email, senha, nome, data_nascimento, id_exp_basq, id_prog_aula)
-    VALUES (p_email, p_senha, p_nome, p_data_nascimento, p_id_exp_basq, p_id_prog_aula);
+    INSERT INTO Jogador (email, senha, nome, data_nascimento, id_exp_basq)
+    VALUES (p_email, p_senha, p_nome, p_data_nascimento, p_id_exp_basq);
 END$$
 
 -- Atualiza nome, email e data de nascimento (usada na edição de perfil)
@@ -110,18 +111,6 @@ BEGIN
         LIMIT 1
     )
     WHERE id_jogador = p_id_jogador;
-END$$
-
--- Busca o progresso do jogador nas aulas (usada na TelaHome e TelaTreino)
-CREATE PROCEDURE BuscarProgressoJogador(IN p_id_jogador INT)
-BEGIN
-    SELECT
-        pa.semana_ult_aula,
-        pa.dia_ult_aula,
-        pa.ult_aula_realizada
-    FROM Jogador j
-    INNER JOIN ProgressoAula pa ON j.id_prog_aula = pa.id_prog_aula
-    WHERE j.id_jogador = p_id_jogador;
 END$$
 
 DELIMITER ;
