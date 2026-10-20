@@ -165,7 +165,7 @@ const estilos = StyleSheet.create({
   card: { backgroundColor: CORES.branco, borderRadius: 20, padding: 20, width: '90%' },
   headerForm: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   tituloForm: { fontSize: 28, fontWeight: 'bold' },
-  miniLogo: { width: 50, height: 50 },
+  miniLogo: { width: 50, height: 50, resizeMode: 'contain' },
   subtitulo: { fontSize: 13, marginVertical: 15, textAlign: 'justify' },
   label: { fontWeight: 'bold', marginTop: 15 },
   input: { backgroundColor: CORES.cinzaClaro, borderRadius: 5, padding: 12, marginTop: 5 },
