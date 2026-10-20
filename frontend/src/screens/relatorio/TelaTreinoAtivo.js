@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView, BackHandler, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import GradientWrapper from '../../components/GradientWrapper';
-import NavegacaoInferior from '../../components/NavegacaoInferior';
 import MQTTService from '../../services/mqttService';
 import StatusModal from '../../components/StatusModal';
 import LightControl from '../../components/LightControl';
@@ -233,14 +232,13 @@ export default function TelaTreinoAtivo({ navigation, route }) {
       </Modal>
 
       <StatusModal visible={showError} onRetry={startConnection} onLater={() => setShowError(false)} />
-      <NavegacaoInferior />
     </GradientWrapper>
   );
 }
 
 const estilos = StyleSheet.create({
   tela: { flex: 1 },
-  scroll: { padding: 24, alignItems: 'center', paddingBottom: 100 },
+  scroll: { padding: 24, alignItems: 'center', paddingBottom: 40 },
   titulo: { color: CORES.branco, fontSize: 24, fontWeight: 'bold', marginTop: 50, marginBottom: 4 },
   subtitulo: { color: CORES.branco, fontSize: 18, marginBottom: 12, opacity: 0.8 },
   posicao: { color: CORES.branco, fontSize: 14, opacity: 0.8, marginBottom: 12 },
