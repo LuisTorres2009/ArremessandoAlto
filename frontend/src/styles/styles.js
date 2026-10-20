@@ -21,6 +21,7 @@ const estilosGlobais = StyleSheet.create({
   icone: {
     width: 50,
     height: 50,
+    resizeMode: 'contain',
   }});
 
 export default estilosGlobais;
